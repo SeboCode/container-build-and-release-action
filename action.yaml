@@ -20,8 +20,7 @@ inputs:
     default: ${{ github.actor }}
   password:
     description: The password to log into the container registry.
-    required: false
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: true
   min-versions-to-keep:
     description: Minimum amount of built images to keep in the registry. Delete the rest.
     required: false
