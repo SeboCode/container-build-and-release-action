@@ -46,7 +46,7 @@ runs:
       with:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.username }}
-        password: ${{ inputs.password }}
+        password: ::add-mask::${{ inputs.password }}
 
     - name: Extract metadata (tags, labels) for Docker
       if: env.DOCKERFILE_CHANGED == 'true'
