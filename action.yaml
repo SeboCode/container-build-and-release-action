@@ -1,8 +1,9 @@
 ---
 name: container-build-and-release-action
 description: Build container if underlying Dockerfile changed.
-icon: anchor
-color: blue
+branding:
+  icon: anchor
+  color: blue
 inputs:
   dockerfile-location:
     description: The path to the Dockerfile that should be built and released.
