@@ -36,6 +36,7 @@ runs:
         fetch-depth: 0 # We need the entire history to check if the Dockerfile has changed
 
     - name: Check if Dockerfile changed
+      shell: bash
       run: |
         if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '${{ inputs.dockerfile-location }}'; then
           echo "DOCKERFILE_CHANGED=true" >> ${GITHUB_ENV}
