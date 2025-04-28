@@ -18,9 +18,6 @@ inputs:
     description: The namespace of the generated and published image.
     required: false
     default: ${{ github.repository }}
-  package-name:
-    description: The package name of the built image in the registry to clean up old images
-    required: true
   username:
     description: The username to log into the container registry.
     required: false
@@ -98,7 +95,7 @@ runs:
       if: ${{ fromJSON(env.DOCKERFILE_CHANGED) }}
       uses: actions/delete-package-versions@v5
       with:
-        package-name: ${{ inputs.package-name }}
+        package-name: ${{ env.PACKAGE_NAME }}
         package-type: container
         min-versions-to-keep: ${{ inputs.min-versions-to-keep }}
 
