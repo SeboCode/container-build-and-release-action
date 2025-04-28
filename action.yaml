@@ -28,6 +28,15 @@ inputs:
     description: Minimum amount of built images to keep in the registry. Delete the rest.
     required: false
     default: -1 # Do not delete any.
+  create-attest:
+    description: Define whether the attestation file should be created and pushed or not (ghcr.io does not support attestation files for private repositories).
+    required: false
+    default: true
+  github-token:
+    description: The GitHub token used to make authenticated API requests.
+    default: ${{ github.token }}
+    required: false
+
 runs:
   using: composite
   steps:
@@ -80,4 +89,13 @@ runs:
         package-name: ${{ inputs.package-name }}
         package-type: container
         min-versions-to-keep: ${{ inputs.min-versions-to-keep }}
+
+    - name: Generate artifact attestation
+      if: ${{ inputs.create-attest }} == 'true'
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ${{ inputs.image-url }}
+        subject-digest: ${{ steps.push.outputs.digest }}
+        push-to-registry: true
+        github-token: ${{ inputs.github-token }}
 
