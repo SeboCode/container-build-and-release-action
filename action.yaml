@@ -9,11 +9,15 @@ inputs:
     description: The path to the Dockerfile that should be built and released.
     required: true
   registry:
-    description: The registrys url to which the container image should be pushed to.
+    description: The registry the image should be published to.
     required: true
-  image-url:
-    description: The entire url of the final image.
+  artifact-name:
+    description: The artifact name of the generated and pushed image.
     required: true
+  namespace:
+    description: The namespace of the generated and published image.
+    required: false
+    default: ${{ github.repository }}
   package-name:
     description: The package name of the built image in the registry to clean up old images
     required: true
@@ -53,6 +57,14 @@ runs:
           echo "DOCKERFILE_CHANGED=false" >> $GITHUB_ENV
         fi
 
+    - name: Set environment variables
+      if: ${{ fromJSON(env.DOCKERFILE_CHANGED) }}
+      shell: bash
+      run: |
+        echo "${{ inputs.registry }}/${{ inputs.namespace }}/${{ inputs.artifact-name }}" | tr '[:upper:]' '[:lower:]' | xargs -I{} echo "IMAGE_URL={}" >> $GITHUB_ENV
+        namespace=${{ inputs.namespace }}
+        echo "${namespace#*/}/${{ inputs.artifact-name }}" | tr '[:upper:]' '[:lower:]' | xargs -I{} echo "PACKAGE_NAME={}" >> $GITHUB_ENV
+
     - name: Log in to the container registry
       if: ${{ fromJSON(env.DOCKERFILE_CHANGED) }}
       uses: docker/login-action@v3
@@ -66,7 +78,7 @@ runs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ inputs.image-url }}
+        images: ${{ env.IMAGE_URL }}
 
     - name: Build and push Docker image
       if: ${{ fromJSON(env.DOCKERFILE_CHANGED) }}
@@ -77,8 +89,8 @@ runs:
         file: ${{ inputs.dockerfile-location }}
         push: true
         tags: |
-          ${{ inputs.image-url }}:latest
-          ${{ inputs.image-url }}:${{ github.sha }}
+          ${{ inputs.IMAGE_URL }}:latest
+          ${{ inputs.IMAGE_URL }}:${{ github.sha }}
           ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
@@ -94,7 +106,7 @@ runs:
       if: ${{ fromJSON(inputs.create-attest) }}
       uses: actions/attest-build-provenance@v2
       with:
-        subject-name: ${{ inputs.image-url }}
+        subject-name: ${{ inputs.IMAGE_URL }}
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true
         github-token: ${{ inputs.github-token }}
