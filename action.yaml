@@ -86,8 +86,8 @@ runs:
         file: ${{ inputs.dockerfile-location }}
         push: true
         tags: |
-          ${{ inputs.IMAGE_URL }}:latest
-          ${{ inputs.IMAGE_URL }}:${{ github.sha }}
+          ${{ env.IMAGE_URL }}:latest
+          ${{ env.IMAGE_URL }}:${{ github.sha }}
           ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
@@ -103,7 +103,7 @@ runs:
       if: ${{ fromJSON(inputs.create-attest) }}
       uses: actions/attest-build-provenance@v2
       with:
-        subject-name: ${{ inputs.IMAGE_URL }}
+        subject-name: ${{ env.IMAGE_URL }}
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true
         github-token: ${{ inputs.github-token }}
