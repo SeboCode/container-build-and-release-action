@@ -91,7 +91,7 @@ runs:
         min-versions-to-keep: ${{ inputs.min-versions-to-keep }}
 
     - name: Generate artifact attestation
-      if: ${{ inputs.create-attest }} == 'true'
+      if: ${{ inputs.create-attest }}
       uses: actions/attest-build-provenance@v2
       with:
         subject-name: ${{ inputs.image-url }}
