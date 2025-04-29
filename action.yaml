@@ -58,6 +58,13 @@ runs:
           echo "DOCKERFILE_CHANGED=false" >> $GITHUB_ENV
         fi
 
+    - name: Force build of Dockerfile if force input is set
+      shell: bash
+      run: |
+        if ${{ inputs.force-build }}; then
+          echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
+        fi
+
     - name: Set environment variables
       if: fromJSON(env.DOCKERFILE_CHANGED)
       shell: bash
