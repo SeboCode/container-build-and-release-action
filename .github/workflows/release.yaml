@@ -26,7 +26,7 @@ jobs:
 
       - uses: ./
         with:
-          dockerfile-location: platform-stack/integration-test
+          dockerfile-location: platform-stack/integration-test/Dockerfile
           registry: ghcr.io
           artifact-name: integration-test-no-force-build
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
 
       - uses: ./
         with:
-          dockerfile-location: platform-stack/integration-test
+          dockerfile-location: platform-stack/integration-test/Dockerfile
           registry: ghcr.io
           artifact-name: integration-test-with-force-build
           password: ${{ secrets.GITHUB_TOKEN }}
