@@ -104,7 +104,7 @@ runs:
         min-versions-to-keep: ${{ inputs.min-versions-to-keep }}
 
     - name: Generate artifact attestation
-      if: ${{ fromJSON(env.DOCKERFILE_CHANGED) }} && ${{ fromJSON(inputs.create-attest) }}
+      if: ${{ fromJSON(env.DOCKERFILE_CHANGED) && fromJSON(inputs.create-attest) }}
       uses: actions/attest-build-provenance@v2
       with:
         subject-name: ${{ env.IMAGE_URL }}
