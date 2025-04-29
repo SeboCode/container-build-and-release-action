@@ -1,0 +1,69 @@
+---
+name: Release
+on:
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - "v*"
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  integration-test-no-force-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+    steps:
+      - uses: action/checkout@v4
+
+      - uses: ./
+        with:
+          dockerfile-location: platform-stack/integration-test
+          registry: ghcr.io
+          artifact-name: integration-test-no-force-build
+          password: ${{ secrets.GITHUB_TOKEN }}
+          min-versions-to-keep: 5
+
+  integration-test-with-force-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+    steps:
+      - uses: action/checkout@v4
+
+      - uses: ./
+        with:
+          dockerfile-location: platform-stack/integration-test
+          registry: ghcr.io
+          artifact-name: integration-test-with-force-build
+          password: ${{ secrets.GITHUB_TOKEN }}
+          min-versions-to-keep: 5
+          force-build: true
+
+  release:
+    if: github.event_name == 'push' && github.ref_name == 'master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - integration-test-no-force-build
+      - integration-test-with-force-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update currently active version tag to point to newest commit
+        run: |
+          git config --global user.email ${{ github.event.pusher.email }}
+          git config --global user.name ${{ github.event.pusher.name }}
+          git tag -af v1-beta -m "Update tag location of v1-beta"
+          git push origin v1-beta -f
+
