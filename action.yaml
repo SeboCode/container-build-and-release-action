@@ -52,26 +52,18 @@ runs:
     - name: Check if Dockerfile changed
       shell: bash
       run: |
-        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '${{ inputs.dockerfile-location }}'; then
-          echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
-        else
-          echo "DOCKERFILE_CHANGED=false" >> $GITHUB_ENV
-        fi
+        ${{ github.action_path }}/scripts/compute-file-change.sh ${{ github.event.before }} ${{ github.sha }} ${{ inputs.dockerfile-location }}
 
     - name: Force build of Dockerfile if force input is set
       shell: bash
       run: |
-        if ${{ inputs.force-build }}; then
-          echo "DOCKERFILE_CHANGED=true" >> $GITHUB_ENV
-        fi
+        ${{ github.action_path }}/scripts/force-build.sh ${{ inputs.force-build }}
 
     - name: Set environment variables
       if: fromJSON(env.DOCKERFILE_CHANGED)
       shell: bash
       run: |
-        echo "${{ inputs.registry }}/${{ inputs.namespace }}/${{ inputs.artifact-name }}" | tr '[:upper:]' '[:lower:]' | xargs -I{} echo "IMAGE_URL={}" >> $GITHUB_ENV
-        namespace=${{ inputs.namespace }}
-        echo "${namespace#*/}/${{ inputs.artifact-name }}" | tr '[:upper:]' '[:lower:]' | xargs -I{} echo "PACKAGE_NAME={}" >> $GITHUB_ENV
+        ${{ github.action_path }}/scripts/set-registry-variables.sh ${{ inputs.registry }} ${{ inputs.namespace }} ${{ inputs.artifact-name }}
 
     - name: Log in to the container registry
       if: fromJSON(env.DOCKERFILE_CHANGED)
