@@ -45,7 +45,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0 # We need the entire history to check if the Dockerfile has changed
 
